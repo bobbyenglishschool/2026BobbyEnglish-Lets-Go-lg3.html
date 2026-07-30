@@ -2,6 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <!-- 🎯 全載具核心天線：加入最標準的縮放網頁視窗雷達，確保行動裝置完美適應 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>巴比美語補習班 | 專屬學員報名系統</title>
     <style>
@@ -36,7 +37,6 @@
             padding: 30px 40px;
         }
 
-        /* 🎯 任務 2：第一頁抬頭最上方動態智慧生產字樣（原樣原封不動，不破壞版面） */
         .dynamic-top-banner {
             font-size: 15px;
             font-weight: bold;
@@ -49,7 +49,6 @@
             display: inline-block;
         }
 
-        /* 經典頂部：左資料、右相片 */
         .header-section {
             display: flex;
             justify-content: space-between;
@@ -96,7 +95,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
- text-align: center;
+            text-align: center;
             font-size: 12px;
             color: var(--uci-blue);
             flex-shrink: 0;
@@ -138,7 +137,6 @@
             border-radius: 4px 4px 0 0;
         }
 
-        /* 🔒 守護方格地基：死死鎖定傳統表格排版，不使用任何手機端拆散方格的規則 */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -406,7 +404,6 @@
             .extra-summer-box { border: 1px solid #666; background-color: transparent; }
         }
 
-        /* 改用橫向溢位自動縮放護盾，手機平板電腦 100% 畫面完美自適應 */
         @media (max-width: 768px) {
             body { padding: 8px; }
             .page { padding: 15px 10px; }
@@ -489,11 +486,11 @@
                         <th><span class="zh-title">與學生關係</span><span class="en-title">Relationship</span></th>
                         <td><input type="text" name="relation" class="text-input" placeholder="" required></td>
                         <th><span class="zh-title">聯絡電話</span><span class="en-title">Phone Number</span></th>
-                        <td><input type="tel" name="phone" class="text-input" placeholder="主要聯絡手機" required></td>
+                        <td><input type="tel" name="phone" class="text-input" placeholder="0912345678" required></td>
                     </tr>
                     <tr>
                         <th><span class="zh-title">電子信箱</span><span class="en-title">E-mail</span></th>
-                        <td colspan="3"><input type="email" name="email" class="text-input" placeholder=""></td>
+                        <td colspan="3"><input type="email" name="email" class="text-input" placeholder="example@email.com"></td>
                         <th><span class="zh-title">LINE ID</span><span class="en-title">LINE ID</span></th>
                         <td><input type="text" name="line_id" class="text-input" placeholder="LINE ID"></td>
                     </tr>
@@ -579,7 +576,8 @@
                         <th><span class="zh-title">教材發放狀況</span><span class="en-title">Material Status</span></th>
                         <td>
                             <div class="radio-group">
-                                <label><input type="radio" name="materials_status" value="Ref"> 已發放</label>
+                                <!-- 🎯 核心修復：把誤植的 Ref 修復為正確的 已發放 數值 -->
+                                <label><input type="radio" name="materials_status" value="已發放"> 已發放</label>
                                 <label><input type="radio" name="materials_status" value="待發放" checked> 待發放</label>
                             </div>
                         </td>
@@ -633,7 +631,7 @@
                     </div>
                     <div class="signature-row">
                         <span>日期 Date</span>
-                        <input type="date" name="parent_sig_date" class="signature-input" required>
+                        <input type="date" name="parent_sig_date" id="parentSigDate" class="signature-input" required>
                     </div>
                 </div>
 
@@ -644,7 +642,7 @@
                     </div>
                     <div class="signature-row">
                         <span>日期 Date</span>
-                        <input type="date" name="teacher_sig_date" class="signature-input">
+                        <input type="date" name="teacher_sig_date" id="teacherSigDate" class="signature-input">
                     </div>
                 </div>
             </div>
@@ -667,7 +665,6 @@ var courseDatabase = {
 // ==========================================
 var TARGET_COURSE = "Let's Go 3"; 
 
-
 // 頁面初始化自動綁定與運算
 window.onload = function() {
     document.getElementById('course_name_hidden').value = TARGET_COURSE;
@@ -675,10 +672,13 @@ window.onload = function() {
     
     document.getElementById('mainTitleDisplay').innerHTML = "巴比美語補習班 ｜ " + TARGET_COURSE + " 專屬智慧報名系統";
     document.getElementById('subTitleDisplay').innerHTML = "Bobby English School - " + TARGET_COURSE + " Enrollment Form";
-    
-    // 🚀 任務 2 智慧生產天線：自動在抬頭最上方動態生成專屬報名系統文字
     document.getElementById('dynamicBannerDisplay').innerHTML = TARGET_COURSE + " 專屬智慧報名系統";
     
+    // 🎯 自動時光天線：自動帶入當天日期至家長與老師簽名處
+    var today = new Date().toISOString().split('T')[0];
+    if(document.getElementById('parentSigDate')) document.getElementById('parentSigDate').value = today;
+    if(document.getElementById('teacherSigDate')) document.getElementById('teacherSigDate').value = today;
+
     calculateTuition();
 };
 
@@ -708,9 +708,7 @@ function calculateTuition() {
         document.getElementById('sub_materials').value = materialsTotal;
         document.getElementById('sub_misc').value = miscTotal;
         
-        // 🎯 黃金細節二修復：讓動態大腦實時計算時，把 "$" 符號牢牢綁在鮮紅色數字前方！
         totalInput.value = "$" + finalTotal;
-
         timeDisplay.innerText = course.time;
         var discountLabel = discountRate === 0.8 ? " <span style='color:red;'>(尊榮老朋友8折)</span>" : " (常態運算)";
 
@@ -768,15 +766,18 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
     
     var googleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbxt07hF-qkXePULEBjuCpzdWnaeNWsTlQV7dRhch_iBwtVePOIJzldTAsR0LothoQ1l/exec";
     
+    // 🎯 核心防護：加入 mode: 'no-cors' 防範跨域安全性阻斷
     fetch(googleAppsScriptUrl, {
         method: 'POST',
+        mode: 'no-cors',
         body: new URLSearchParams(new FormData(form))
     })
     .then(function() {
         alert("🎉 巴比美語：單一課程專屬雲端連線登記成功！");
         form.submit(); 
     })
-    .catch(function() {
+    .catch(function(error) {
+        console.warn("GAS Sync notice:", error);
         form.submit();
     });
 });
