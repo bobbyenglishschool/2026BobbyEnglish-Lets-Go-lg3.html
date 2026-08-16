@@ -560,13 +560,16 @@
                             <th><span class="zh-title">與學生關係</span><span class="en-title">Relationship</span></th>
                             <td><input type="text" name="relation" class="text-input" placeholder="" required></td>
                             <th><span class="zh-title">聯絡電話</span><span class="en-title">Phone Number</span></th>
-                            <td><input type="tel" name="phone" class="text-input" placeholder="0912345678" required></td>
+                            <!-- 🎯 精準修改 1：移除原本的 placeholder="0912345678"，維持乾淨無雜字 -->
+                            <td><input type="tel" name="phone" class="text-input" placeholder="" required></td>
                         </tr>
                         <tr>
                             <th><span class="zh-title">電子信箱</span><span class="en-title">E-mail</span></th>
-                            <td colspan="3"><input type="email" name="email" class="text-input" placeholder="example@email.com"></td>
+                            <!-- 🎯 精準修改 2：移除原本的 placeholder="example@email.com"，維持乾淨無雜字 -->
+                            <td colspan="3"><input type="email" name="email" class="text-input" placeholder=""></td>
                             <th><span class="zh-title">LINE ID</span><span class="en-title">LINE ID</span></th>
-                            <td><input type="text" name="line_id" class="text-input" placeholder="LINE ID"></td>
+                            <!-- 🎯 精準修改 3：移除原本的 placeholder="LINE ID"，維持乾淨無雜字 -->
+                            <td><input type="text" name="line_id" class="text-input" placeholder=""></td>
                         </tr>
                         <tr>
                             <th><span class="zh-title">通訊地址</span><span class="en-title">Mailing Address</span></th>
@@ -586,7 +589,6 @@
                                 <div id="courseLabelDisplay" class="static-course-display">未設定課程</div>
                             </td>
                             <th><span class="zh-title">標準上課時段</span><span class="en-title">Schedule</span></th>
-                            <!-- 🎯 上課時間設定幾何上下左右完全置中結構 -->
                             <td colspan="2" id="timeDisplay" style="font-weight: bold; color: var(--uci-blue); padding: 0; height: 100%;">載入中...</td>
                         </tr>
                         <tr id="standardDiscountRow">
@@ -738,7 +740,8 @@
 // ===== 核心報名表對應資料庫 =====
 var courseDatabase = {
     "Let's Go 3": { 
-        label: "Let's Go 3 兒童中階美語 (中英雙語教學)", 
+        // 🎯 精準修改 4：移除「 (中英雙語教學)」，讓欄位呈現乾淨利落
+        label: "Let's Go 3 兒童中階美語", 
         time: "<div style='display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; height:100%; width:100%;'><div style='font-weight:800; color:var(--uci-blue); font-size:12.5px; line-height:1.2;'><span class='no-orphan'>週一 4:30-6:30 PM</span></div><div style='font-weight:700; color:var(--uci-blue); font-size:11.5px; line-height:1.2; margin-top:3px;'><span class='no-orphan'>週三、五 1:30-3:30 PM</span></div></div>", 
         lessons: 51, price: 620, materials: 1572, misc: 60 
     }
