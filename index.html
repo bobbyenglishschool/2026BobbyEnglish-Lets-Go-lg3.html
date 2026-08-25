@@ -103,8 +103,9 @@
         <input type="hidden" id="sub_materials" name="sub_materials" value="0">
         <input type="hidden" id="sub_misc" name="sub_misc" value="0">
 
-        <!-- 🚀 靜態基準網址隱藏欄位 (確保 Email 按鈕 100% 觸發) -->
+        <!-- 🚀 靜態預覽網址與 GAS 生成連結雙欄位 -->
         <input type="hidden" id="printLinkBaseInput" name="print_link_base" value="">
+        <input type="hidden" id="printLinkInput" name="print_link" value="">
 
         <input type="hidden" id="student_photo_base64" name="student_photo_base64" value="">
         <input type="hidden" id="parent_signature_base64" name="parent_signature_base64" value="">
@@ -363,6 +364,7 @@ window.onload = function() {
     document.getElementById('subTitleDisplay').innerHTML = "Bobby English School - " + TARGET_COURSE + " Enrollment Form";
     document.getElementById('dynamicBannerDisplay').innerHTML = TARGET_COURSE + " 專屬智慧報名系統";
     
+    // 🎯 核心補強：自動寫入當前網頁基準 URL
     var baseInput = document.getElementById('printLinkBaseInput');
     if (baseInput) {
         baseInput.value = window.location.origin + window.location.pathname;
@@ -378,7 +380,7 @@ window.onload = function() {
     // 🎯 核心還原邏輯：當偵測到 auto_print 參數時啟動
     var urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('auto_print')) {
-        // 1. 強效還原所有文字、日期、單選框欄位
+        // 1. 強效解碼並還原所有文字、日期、單選框欄位
         urlParams.forEach(function(rawValue, key) {
             var value = decodeURIComponent(rawValue);
             var inputs = document.querySelectorAll('[name="' + key + '"]');
@@ -451,6 +453,7 @@ window.onload = function() {
         }
     }
 };
+
 function initSignaturePads() {
     parentCanvas = document.getElementById('parentSigPad');
     staffCanvas = document.getElementById('staffSigPad');
