@@ -14,7 +14,7 @@
             --uci-blue: #1b3d6d;
             --uci-gold: #fecc07;
             --soft-red: #e74c3c;
-            --lg3-blue: #0077b6; /* 💙 Let's Go 3 專屬蔚藍色晶片 */
+            --lg3-blue: #0077b6;
             --card-bg: #f8fafc;
             --border-color: #1b3d6d;
             --text-main: #1e293b;
@@ -93,7 +93,6 @@
 <body>
 
 <div class="page-container">
-    <!-- 📋 報名主表單 -->
     <form id="enrollmentForm">
         <input type="hidden" name="series" value="LetsGo">
         <input type="hidden" name="formType" value="registration">
@@ -356,14 +355,13 @@ var parentCanvas, staffCanvas;
 var parentCtx, staffCtx;
 var isDrawingParent = false, isDrawingStaff = false;
 
-// 🚀 雙重解碼與雙通道圖檔防彈還原解析器
+// 🚀 核心升級：Row-ID 極速向 GAS 請求試算表整列資料並精準填回
 window.onload = function() {
     document.getElementById('course_name_hidden').value = TARGET_COURSE;
     document.getElementById('mainTitleDisplay').innerHTML = "私立巴比美語短期補習班 ｜ " + TARGET_COURSE + " 專屬智慧報名系統";
     document.getElementById('subTitleDisplay').innerHTML = "Bobby English School - " + TARGET_COURSE + " Enrollment Form";
     document.getElementById('dynamicBannerDisplay').innerHTML = TARGET_COURSE + " 專屬智慧報名系統";
     
-    // 寫入當前網頁絕對 URL
     var baseInput = document.getElementById('printLinkBaseInput');
     if (baseInput) {
         baseInput.value = window.location.origin + window.location.pathname;
@@ -376,84 +374,96 @@ window.onload = function() {
     initSignaturePads();
     calculateTuition();
 
-    // 🎯 核心還原邏輯：當 URL 包含 auto_print 參數時執行
+    // 🎯 核心 Row-ID 讀取技術：點開連結後向 GAS doGet 請求該列 21 個欄位資料
     var urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('auto_print')) {
-        // 1. 還原所有文字/選擇框 (雙重 safeDecode)
-        urlParams.forEach(function(rawValue, key) {
-            var value = rawValue;
-            try { value = decodeURIComponent(rawValue); } catch(e){}
-            try { value = decodeURIComponent(value); } catch(e){}
+    if (urlParams.has('row') && urlParams.has('auto_print')) {
+        var rowId = urlParams.get('row');
+        var series = urlParams.get('series') || 'LetsGo';
+        var formType = urlParams.get('formType') || 'registration';
 
-            var inputs = document.querySelectorAll('[name="' + key + '"]');
-            if (inputs.length > 0) {
-                inputs.forEach(function(input) {
-                    if (input.type === 'radio') {
-                        if (input.value === value) {
-                            input.checked = true;
-                        }
-                    } else {
-                        input.value = value;
-                    }
+        var pureGasUrl = "https://script.google.com/macros/s/AKfycbwr4AAm42X6bvPwEbp8tPhyc0N3js3zhicgkD5YGrnk5EnKmeGakB7FUIcCH98glKrwVA/exec";
+        var fetchUrl = pureGasUrl + "?row=" + rowId + "&series=" + series + "&formType=" + formType;
+
+        fetch(fetchUrl)
+        .then(function(response) { return response.json(); })
+        .then(function(res) {
+            if (res.result === 'success' && res.data) {
+                var d = res.data; // 21 欄資料陣列 (對齊最新欄位順序)
+                
+                // 1. 填寫文字與單選欄位
+                document.getElementsByName('student_name_zh')[0].value = d[2] || '';
+                document.getElementsByName('student_name_en')[0].value = d[3] || '';
+                
+                var genderVal = d[4];
+                var genderRadios = document.getElementsByName('gender');
+                genderRadios.forEach(function(r) { if(r.value === genderVal) r.checked = true; });
+
+                document.getElementsByName('dob')[0].value = d[5] || '';
+                document.getElementsByName('school')[0].value = d[6] || '';
+                document.getElementsByName('grade')[0].value = d[7] || '';
+                document.getElementsByName('parent_name')[0].value = d[8] || '';
+                document.getElementsByName('relation')[0].value = d[9] || '';
+                document.getElementsByName('phone')[0].value = d[10] || '';
+                document.getElementsByName('email')[0].value = d[11] || '';
+                document.getElementsByName('line_id')[0].value = d[12] || '';
+                document.getElementsByName('address')[0].value = d[13] || '';
+
+                // 還原優惠方案
+                var discountVal = d[14];
+                var discountRadios = document.getElementsByName('discount_plan');
+                discountRadios.forEach(function(r) {
+                    if (discountVal.indexOf('9折') !== -1 && r.value === '0.9') r.checked = true;
+                    else if (discountVal.indexOf('85折') !== -1 && r.value === '0.85') r.checked = true;
+                    else if (discountVal.indexOf('8折') !== -1 && r.value === '0.8') r.checked = true;
+                    else if (discountVal.indexOf('原價') !== -1 && r.value === '1.0') r.checked = true;
                 });
+
+                calculateTuition();
+
+                // 工具：轉換 Drive 連結為高權限可顯示格式
+                function getDirectDriveUrl(url) {
+                    if (!url) return "";
+                    var match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+                    return match && match[1] ? "https://lh3.googleusercontent.com/d/" + match[1] : url;
+                }
+
+                // 2. 渲染大頭照 (第 18 欄, index 17)
+                var photoUrl = getDirectDriveUrl(d[17]);
+                if (photoUrl) {
+                    var container = document.getElementById('photoContainer');
+                    var uploadText = document.getElementById('uploadText');
+                    if (uploadText) uploadText.style.display = 'none';
+                    var oldImg = container.querySelector('.preview-img');
+                    if (oldImg) oldImg.remove();
+
+                    var img = document.createElement('img');
+                    img.src = photoUrl;
+                    img.className = 'preview-img';
+                    container.appendChild(img);
+                }
+
+                // 3. 渲染家長簽名 (第 19 欄, index 18)
+                var parentSigUrl = getDirectDriveUrl(d[18]);
+                if (parentSigUrl) {
+                    var pImg = new Image();
+                    pImg.crossOrigin = "anonymous";
+                    pImg.onload = function() { parentCtx.drawImage(pImg, 0, 0, parentCanvas.width, parentCanvas.height); };
+                    pImg.src = parentSigUrl;
+                }
+
+                // 4. 渲染經辦簽名 (第 20 欄, index 19)
+                var staffSigUrl = getDirectDriveUrl(d[19]);
+                if (staffSigUrl) {
+                    var sImg = new Image();
+                    sImg.crossOrigin = "anonymous";
+                    sImg.onload = function() { staffCtx.drawImage(sImg, 0, 0, staffCanvas.width, staffCanvas.height); };
+                    sImg.src = staffSigUrl;
+                }
             }
+        })
+        .catch(function(err) {
+            console.error("Error fetching row data:", err);
         });
-
-        calculateTuition();
-
-        // 🛠️ 轉換器：將 Drive 普通檢視網址轉為免驗證直連管道
-        function getDirectDriveUrl(rawUrl) {
-            if (!rawUrl) return "";
-            var decodedUrl = rawUrl;
-            try { decodedUrl = decodeURIComponent(rawUrl); } catch(e){}
-            try { decodedUrl = decodeURIComponent(decodedUrl); } catch(e){}
-            
-            var match = decodedUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || decodedUrl.match(/id=([a-zA-Z0-9_-]+)/);
-            if (match && match[1]) {
-                return "https://lh3.googleusercontent.com/d/" + match[1];
-            }
-            return decodedUrl;
-        }
-
-        // 2. 還原大頭照
-        var photoUrl = getDirectDriveUrl(urlParams.get('photo_url'));
-        if (photoUrl) {
-            var container = document.getElementById('photoContainer');
-            var uploadText = document.getElementById('uploadText');
-            if (uploadText) uploadText.style.display = 'none';
-            var oldImg = container.querySelector('.preview-img');
-            if (oldImg) oldImg.remove();
-
-            var img = document.createElement('img');
-            img.src = photoUrl;
-            img.className = 'preview-img';
-            img.crossOrigin = "anonymous";
-            container.appendChild(img);
-        }
-
-        // 3. 還原家長簽名檔至 Canvas
-        var parentSigUrl = getDirectDriveUrl(urlParams.get('parent_sig_url'));
-        if (parentSigUrl) {
-            var pImg = new Image();
-            pImg.crossOrigin = "anonymous";
-            pImg.onload = function() {
-                parentCtx.clearRect(0, 0, parentCanvas.width, parentCanvas.height);
-                parentCtx.drawImage(pImg, 0, 0, parentCanvas.width, parentCanvas.height);
-            };
-            pImg.src = parentSigUrl;
-        }
-
-        // 4. 還原經辦人員簽名檔至 Canvas
-        var staffSigUrl = getDirectDriveUrl(urlParams.get('staff_sig_url'));
-        if (staffSigUrl) {
-            var sImg = new Image();
-            sImg.crossOrigin = "anonymous";
-            sImg.onload = function() {
-                staffCtx.clearRect(0, 0, staffCanvas.width, staffCanvas.height);
-                staffCtx.drawImage(sImg, 0, 0, staffCanvas.width, staffCanvas.height);
-            };
-            sImg.src = staffSigUrl;
-        }
     }
 };
 
@@ -629,7 +639,6 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
         document.getElementById('staff_signature_base64').value = staffCanvas.toDataURL("image/png");
     }
 
-    // 🎯 確保送出前 printLinkBaseInput 100% 存在且正確賦值網址
     var baseInput = document.getElementById('printLinkBaseInput');
     if (!baseInput) {
         baseInput = document.createElement('input');
